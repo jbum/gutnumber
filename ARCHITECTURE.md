@@ -140,10 +140,12 @@ A gutnumber record says *where* (URL), *what* (selector bundle + parser) and *ho
   timeout, 3 tries. Body parsed with linkedom; the shared resolver runs over the
   DOM. Also applies `RegexSource` selectors to the raw body (useful for numbers
   embedded in inline JSON, e.g. YouTube's `"viewCount":"…"`).
-- **browser**: Puppeteer, one shared Chromium, a fresh incognito context per
-  fetch. Request interception blocks images/fonts/media (saves proxy bandwidth,
-  which is billed per GB). Waits for the primary selector or a 15 s ceiling, then
-  runs the shared resolver via `page.evaluate`. Proxy set per context.
+- **browser**: Puppeteer, one shared Chromium (recycled every 100 pages), a fresh
+  browser context per fetch. Request interception blocks images/fonts/media (saves
+  proxy bandwidth, which is billed per GB). Waits for network idle, the primary CSS
+  selector, or a ceiling, then returns the rendered HTML; resolution runs in Node
+  with the same resolver as the http path (D17). A JPEG screenshot is kept when a
+  browser fetch fails.
 - **helper**: a named plugin with typed params (§6.4). No selectors involved.
 
 Every fetch returns `{ value, raw, strategy, http_status, duration_ms }` or a
@@ -198,14 +200,17 @@ proxy, with http→browser fallback). Personal helpers load from
 **Judgment helpers (D15).** Some numbers are counts of things that satisfy a
 semantic test, which no selector can express: "how many Hacker News front-page
 stories are about AI today?" These use TypeSafe's Jev model through its JS SDK:
-one `system_one` request whose `state` holds the topic and the list of items,
-and whose `questions` are one Noul per item ("Is `items[i]` about `topic`?").
+one `systemOne` request whose `state` holds the topic and whose `questions` are
+one Noul per item, each embedding that item's title.
 All Nouls run in parallel inside that single call and each returns a probability
 of yes. Code does the rest: count items with `p ≥ threshold` (default 0.5) and
 store the count as the value, with the matched titles and probabilities in
 `raw` so the number's drawer shows *which* stories counted. First instance:
-`hn_topic_count` (params: `topic`, `threshold`, `stories` 30 or 60), fed by one
-Algolia request (`search?tags=front_page`) for the homepage. Per tick, the item
+`hn_topic_count` (params: `topic`, `threshold`, `list` top or new, `stories` 30,
+60 or 100). *top* is HN's ranked `topstories` ids plus one Algolia request for their
+titles; *new* is one Algolia `search_by_date` request. Tracking both shows what is
+being submitted against what scores high. Each Noul carries its own story title
+(D18); 100 stories judge in about half a second. Per tick, the item
 list is fetched once and shared by every topic number, so ten topics cost ten
 Jev calls and one HN fetch. The same two-layer shape (a `source` that lists
 items, a `countYes(items, question)` utility) will serve Reddit, Bluesky or

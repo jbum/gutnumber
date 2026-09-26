@@ -33,6 +33,11 @@ Also useful: `"likeCount"` is not in the static page; likes need the Data API.
 
 ## Channel RSS feeds carry view counts (no API key)
 
+The feed's counts lag the watch page slightly (they are cached); fine for hourly
+trends. Resolve `@handles` via the page's canonical link or `externalId`, never the
+first `"channelId"` on the page, which can belong to a featured channel.
+
+
 `https://www.youtube.com/feeds/videos.xml?channel_id=<UC…>` lists the channel's
 latest 15 uploads with `<media:statistics views="…"/>` per entry. This is the
 cheapest possible YouTube source and the basis of the `youtube_channel_feed`
@@ -70,22 +75,23 @@ scripts stripped except inline JSON blobs, capped at 400 KB, plus a `.json`
 sidecar recording the expected value and the date. Re-run when a site changes
 shape; commit the new fixture with the resolver fix.
 
-## Hacker News front page × topic (judgment helper, daily)
+## Hacker News × topic (judgment helper, daily)
 
-Source: one request, `https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30`,
-returns the current homepage stories (`title`, `url`, `points`, `author`,
-`objectID`, `created_at`). No key. `hitsPerPage=60` for two pages.
+Sources (one request each, no key): **top** = `hacker-news.firebaseio.com/v0/topstories.json`
+(ranked ids) + one Algolia `search?tags=story,(story_1,…)` call for the titles; **new** =
+Algolia `search_by_date?tags=story&hitsPerPage=100`. The list is cached per daemon tick,
+so every topic number shares one fetch.
 
-Helper `hn_topic_count` (ARCHITECTURE §6.4, D15): state
-`{ topic, items: [{ i, title, domain, points }] }`, one Noul per item
-("Is `items[i]` about `topic`?"), value = count with p ≥ `threshold`, raw = the
-matched titles with probabilities. Suggested first numbers, all `daily`:
+`hn_topic_count` asks one Noul per story, with the story title inside the question
+(D18), and counts p ≥ `threshold`. Matched titles and probabilities are stored in the
+sample's raw text. Live on 2026-09-26 for AI: 23 of the top 99, 32 of the newest 100.
 
-| Label | topic | threshold |
-|---|---|---|
-| HN front page: AI stories | AI (artificial intelligence, machine learning, LLMs) | 0.5 |
-| HN front page: Anthropic | Anthropic or its Claude models | 0.5 |
-| HN front page: security breaches | a security breach, data leak or compromise | 0.5 |
+| Label | topic | list | stories |
+|---|---|---|---|
+| HN top 100: AI stories | AI (artificial intelligence, machine learning, LLMs) | top | 100 |
+| HN new 100: AI stories | same | new | 100 |
+| HN top/new 100: Anthropic stories | Anthropic or its Claude models | top / new | 100 |
+| HN top/new 100: security breaches | a security breach, data leak or compromise | top / new | 100 |
 
 Put the topic's expansion in the topic string; it is the model's only definition.
-Expect 0–8 per topic per day; `bar` charts with `bucket: day, agg: last` read best.
+

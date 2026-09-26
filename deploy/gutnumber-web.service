@@ -1,0 +1,19 @@
+[Unit]
+Description=gutnumber web (API + UI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{USER}}
+WorkingDirectory={{HOME}}/gutnumber
+EnvironmentFile={{HOME}}/gutnumber_pvt/.env
+Environment=NODE_ENV=production GUTNUMBER_PRIVATE_DIR={{HOME}}/gutnumber_pvt
+ExecStart=/usr/bin/node {{HOME}}/gutnumber/dist/server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

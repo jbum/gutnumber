@@ -20,9 +20,12 @@ Named after the original "Gutnumber" system built at Digisynd, after David Guttm
 
 ```sh
 npm install
-npm test
-npm run dev          # server :3100, daemon, client with hot reload (Vite :5173)
-npm run gut -- help  # CLI
+npm test                 # unit tests (seconds)
+npm run e2e              # daemon + headless Chrome against a local fixture site
+npm run dev              # server :3100, daemon, client with hot reload (Vite :5173)
+npm run gut -- help      # CLI
+GUTNUMBER_DATA_DIR=/tmp/gutdemo npx tsx scripts/seed-demo.ts   # demo numbers + history
+npm run build            # dist/: server.js daemon.js gut.js client/ extension/
 ```
 
 Data goes to `./data` in development (`GUTNUMBER_DATA_DIR` overrides).

@@ -31,6 +31,7 @@ GET    /gutnumbers/:id/samples      ?from=&to=&points=&agg=   raw or bucketed sa
 GET    /gutnumbers/:id/log          ?limit=  recent poll_log rows
 POST   /gutnumbers/:id/repair-test  { bundle } → runs preview against the live URL and returns per-selector results
 GET    /gutnumbers/:id/page         last fetched page (gzipped HTML from data/pages), for the repair view
+DELETE /gutnumbers/:id/samples/:ts  delete one bad sample; last_value is recomputed
 ```
 
 `:id` accepts the integer id or the slug.
@@ -135,6 +136,7 @@ GET  /log                          ?ok=0&since=&gutnumber_id=&limit=     poll_lo
 GET  /health                       { ok, db: true, daemon_heartbeat_age_s, failing: n, version }
 GET  /settings                     daily_hour, weekly_day, palette
 PUT  /settings                     same keys
+GET  /whoami                       { user } from X-Forwarded-User
 GET  /export                       { gutnumbers, visualizations, dashboards, playlists } definitions only, no samples
 POST /import                       same shape; upserts by slug/title; dry_run=1 reports what would change
 ```

@@ -1,0 +1,21 @@
+[Unit]
+Description=gutnumber daemon (polls tracked numbers)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{USER}}
+WorkingDirectory={{HOME}}/gutnumber
+EnvironmentFile={{HOME}}/gutnumber_pvt/.env
+Environment=NODE_ENV=production GUTNUMBER_PRIVATE_DIR={{HOME}}/gutnumber_pvt PUPPETEER_CACHE_DIR={{HOME}}/gutnumber-data/chromium
+ExecStart=/usr/bin/node {{HOME}}/gutnumber/dist/daemon.js
+Restart=always
+RestartSec=5
+# Chromium leaks are contained by a restart, not a debugging session.
+MemoryMax=1200M
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

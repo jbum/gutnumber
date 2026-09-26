@@ -1,20 +1,20 @@
 # Gutnumber — Implementation Plan
 
-Status: reviewed 2026-09-26; open questions answered (see the end). Ready for implementation. Read `ARCHITECTURE.md` first. Phases are
+Status: Phases 0–8 implemented and deployed 2026-09-26 (host details in the private repo). Open items are listed under "Not done yet" below. Read `ARCHITECTURE.md` first. Phases are
 ordered so that something useful exists after each one; each has a done-when
 check that can be verified without the later phases. Tick boxes as work lands.
 
 ## Phase 0 — Scaffold (½ day)
 
 - [x] Root `package.json` (D16), `tsconfig.json` with `@gut/*` paths, vitest, tsx.
-- [ ] Packages created with a stub `index.ts` each: shared, db, fetch, daemon,
+- [x] Packages created with a stub `index.ts` each: shared, db, fetch, daemon,
       server, client (Vite + Preact), extension (Vite, MV3 manifest), cli.
-- [ ] `.gitignore`, `.env.example`, `packages/extension/config.example.json`,
+- [x] `.gitignore`, `.env.example`, `packages/extension/config.example.json`,
       `deploy/*.example`.
-- [ ] `git init`; first commit; create GitHub repos `gutnumber` (public) and
+- [x] `git init`; first commit; create GitHub repos `gutnumber` (public) and
       `gutnumber_pvt` (private, sibling dir with `.env`, `deploy/`, `helpers/`,
       `seed/`, `notes/`).
-- [ ] Move the "Reference install" section of `DEPLOY.md` and `PROPOSAL.md` into
+- [x] Move the "Reference install" section of `DEPLOY.md` and `PROPOSAL.md` into
       `gutnumber_pvt/notes/` (Q9 decides timing: before first public push at the
       latest).
 
@@ -23,18 +23,18 @@ starts server + client with hot reload.
 
 ## Phase 1 — Shared core: selectors, parsing, schedule (1–2 days)
 
-- [ ] `shared/text.ts` normalisation; `shared/parse-number.ts` with the table in
+- [x] `shared/text.ts` normalisation; `shared/parse-number.ts` with the table in
       `SELECTORS.md` §4 as tests.
-- [ ] `shared/selectors/types.ts` (zod), `resolve.ts` (CSS, XPath, TextQuote,
+- [x] `shared/selectors/types.ts` (zod), `resolve.ts` (CSS, XPath, TextQuote,
       RegexSource) against any DOM-like `Document`; tests run against linkedom
       *and* jsdom-free happy-dom to catch API drift.
-- [ ] `shared/selectors/generate.ts`: CSS generator per `SELECTORS.md` §2, XPath,
+- [x] `shared/selectors/generate.ts`: CSS generator per `SELECTORS.md` §2, XPath,
       TextQuote with prefix/suffix, context HTML capture. Fixture pages: Amazon
       product (both detail layouts), YouTube watch, a simple blog stats page, a
       page with hashed class names.
-- [ ] `shared/schedule.ts`: `nextDue(frequency, now, {dailyHour, weeklyDay, tz})`,
+- [x] `shared/schedule.ts`: `nextDue(frequency, now, {dailyHour, weeklyDay, tz})`,
       jitter, backoff; tests across DST boundaries.
-- [ ] `shared/schemas/`: VizConfig, DashboardLayout, DashboardOptions,
+- [x] `shared/schemas/`: VizConfig, DashboardLayout, DashboardOptions,
       PlaylistItem, Bundle, Gutnumber DTOs.
 
 Done when: every fixture resolves to the expected number via the first selector,
@@ -43,37 +43,37 @@ test helper.
 
 ## Phase 2 — DB + fetch + daemon (2 days)
 
-- [ ] `db/`: open with pragmas, migration runner, `001_init.sql` from
+- [x] `db/`: open with pragmas, migration runner, `001_init.sql` from
       `DATA_MODEL.md`, typed query functions, `claimDue` with stale-claim reclaim.
-- [ ] `fetch/http.ts`: undici fetch, headers, ProxyAgent from
+- [x] `fetch/http.ts`: undici fetch, headers, ProxyAgent from
       `PROXY_URL_TEMPLATE` with `{session}` substitution, timeout/retries, bot-wall
       markers, linkedom parse, `resolveBundle`.
-- [ ] `fetch/browser.ts`: Puppeteer singleton, incognito context per fetch,
+- [x] `fetch/browser.ts`: Puppeteer singleton, incognito context per fetch,
       request interception (block image/font/media), proxy per context, wait for
       selector or ceiling, `page.evaluate(resolveBundle)`, screenshot on failure
       to `data/failures/<id>-<ts>.png` (kept 7 days).
-- [ ] `fetch/helpers/`: registry, param schema validation, built-ins
+- [x] `fetch/helpers/`: registry, param schema validation, built-ins
       `youtube_channel_feed` (RSS, no key; see `TEST_TARGETS.md`), `json_api`,
       `youtube_video_stats`, `youtube_channel_stats`, `hn_topic_count` (Jev via the
       TypeSafe JS SDK; read docs.typesafe.ai's JS SDK and Noul pages first, and
       `~/Development/AI/jev/ask_jev.py` for the working Python shape; per-tick
       source cache so topics share one HN fetch); private helper loader from
       `$GUTNUMBER_PRIVATE_DIR/helpers`.
-- [ ] `fetch/preview.ts`: run strategies in order, per-selector report.
-- [ ] Site credentials from `credentials.json` for http, browser and helpers;
+- [x] `fetch/preview.ts`: run strategies in order, per-selector report.
+- [x] Site credentials from `credentials.json` for http, browser and helpers;
       `json_api` aggregation over JSONPath matches (D14).
-- [ ] `daemon/`: loop, concurrency limiter, per-host gap, job runner writing
+- [x] `daemon/`: loop, concurrency limiter, per-host gap, job runner writing
       samples/poll_log/gutnumber state, heartbeat, nightly prune + backup hook,
       http→browser fallback on `bot_wall`/`selector_miss` once per cycle,
       `suspect` flag on 1000× jumps, `drifted` status rule.
-- [ ] Same-URL grouping within a tick (one fetch, many bundles) and retention of
+- [x] Same-URL grouping within a tick (one fetch, many bundles) and retention of
       the last fetched page per number in `data/pages/` (D12).
-- [ ] `cli/`: `gut poll <id|slug>`, `gut add --url --label --frequency` (uses
+- [x] `cli/`: `gut poll <id|slug>`, `gut add --url --label --frequency` (uses
       preview to build a bundle from a TextQuote prefix you type), `gut backup`,
       `gut export` / `gut import`.
-- [ ] `scripts/fixture-site.ts`: a local Fastify serving the fixture pages with
+- [x] `scripts/fixture-site.ts`: a local Fastify serving the fixture pages with
       knobs (`?fail=captcha`, `?drift=1`, `?value=N`) for e2e.
-- [ ] `npm run e2e`: temp DB, fixture site, one daemon tick, assert samples and
+- [x] `npm run e2e`: temp DB, fixture site, one daemon tick, assert samples and
       poll_log rows including a bot-wall retry and a drift.
 
 Done when: `gut add` + `gut poll` records a real value from the fixture site
@@ -82,14 +82,14 @@ against fixtures without leaking Chromium processes (check `ps`).
 
 ## Phase 3 — Server API + auth (1–2 days)
 
-- [ ] Fastify app, zod validation, error envelope, request logging.
-- [ ] No app-level auth (D11): read `X-Forwarded-User` for logs; refuse to start
+- [x] Fastify app, zod validation, error envelope, request logging.
+- [x] No app-level auth (D11): read `X-Forwarded-User` for logs; refuse to start
       bound to anything but 127.0.0.1 unless `GUTNUMBER_DEV=1`.
-- [ ] Routes from `API.md`: gutnumbers (incl. `/page`), preview, helpers, log,
+- [x] Routes from `API.md`: gutnumbers (incl. `/page`), preview, helpers, log,
       health, settings, export/import.
-- [ ] Cascade rules on delete (viz series, playlists, dashboards) as functions in
+- [x] Cascade rules on delete (viz series, playlists, dashboards) as functions in
       `db/` with tests.
-- [ ] Serve built client from `/`, viewer shell from `/view/*`.
+- [x] Serve built client from `/`, viewer shell from `/view/*`.
 
 Done when: `curl` walkthrough in `API.md` works end to end against a temp DB;
 the extension's create call and the CLI both work through a local Apache (or
@@ -97,22 +97,22 @@ Caddy) basic-auth proxy in front of the dev server.
 
 ## Phase 4 — Chrome extension (2 days)
 
-- [ ] MV3 manifest generated at build from `config.json` (API origin → host
+- [x] MV3 manifest generated at build from `config.json` (API origin → host
       permission), `activeTab`, `scripting`, `storage`.
-- [ ] Service worker: inject picker on action click; message bridge; API calls
+- [x] Service worker: inject picker on action click; message bridge; API calls
       with stored basic-auth header; preview call.
-- [ ] YouTube special case: when the clicked number is also present in the page
+- [x] YouTube special case: when the clicked number is also present in the page
       source as `"viewCount":"N"`, offer the `RegexSource` and the
       `youtube_channel_feed` helper as alternatives in the dialog.
-- [ ] Picker content script: overlay + hover highlight, number badge, parent/child
+- [x] Picker content script: overlay + hover highlight, number badge, parent/child
       widening with arrow keys, Esc, click → bundle generation via `shared`.
-- [ ] Dialog in shadow DOM: label, URL, parsed value + raw + parser picker,
+- [x] Dialog in shadow DOM: label, URL, parsed value + raw + parser picker,
       frequency, proxy, server preview panel with recommended fetcher, Create /
       Cancel, success state with link to editor.
-- [ ] Options page: API URL, basic-auth username/password, default frequency,
+- [x] Options page: API URL, basic-auth username/password, default frequency,
       "test connection".
-- [ ] Bookmarklet build (`picker.iife.js`) + `/bookmarklet` page (optional, Q3).
-- [ ] Manual test script in `packages/extension/TESTING.md`: Amazon product page,
+- [x] Bookmarklet build (`picker.iife.js`) + `/bookmarklet` page (optional, Q3).
+- [x] Manual test script in `packages/extension/TESTING.md`: Amazon product page,
       YouTube watch page, one of your own pages, a page with strict CSP.
 
 Done when: the starter video in `TEST_TARGETS.md` is created with one click and
@@ -121,14 +121,14 @@ gutnumber whose daemon poll returns the same rank within a minute (with proxy).
 
 ## Phase 5 — Web UI: Numbers tab + Log tab (2 days)
 
-- [ ] App shell: tabs, login page, toasts, confirm dialogs, keyboard-friendly.
-- [ ] Numbers table with inline enable toggle, frequency dropdown, colour swatch,
+- [x] App shell: tabs, login page, toasts, confirm dialogs, keyboard-friendly.
+- [x] Numbers table with inline enable toggle, frequency dropdown, colour swatch,
       sparkline, status badge, poll-now, search/filter/sort, host grouping.
-- [ ] Edit modal: all fields incl. unit/decimals; per-selector "test on server";
+- [x] Edit modal: all fields incl. unit/decimals; per-selector "test on server";
       repair view with stored context HTML vs the retained last page; slug rename
       with uniqueness check.
-- [ ] "New from helper" form generated from `params`, with "test" before save.
-- [ ] Per-number log drawer; Log tab with failures across numbers; daemon
+- [x] "New from helper" form generated from `params`, with "test" before save.
+- [x] Per-number log drawer; Log tab with failures across numbers; daemon
       heartbeat indicator; health banner if the daemon is stale.
 
 Done when: every gutnumber operation in the proposal's editor section is
@@ -136,28 +136,28 @@ possible without the CLI.
 
 ## Phase 6 — Visualizations (2 days)
 
-- [ ] Data endpoint: bucketing, transforms (raw, delta, running_avg, bucket agg),
+- [x] Data endpoint: bucketing, transforms (raw, delta, running_avg, bucket agg),
       `invert`, `points` cap; tests on synthetic series.
-- [ ] Chart component (Chart.js): line/bar/area/step/stat, dual axis, legend,
+- [x] Chart component (Chart.js): line/bar/area/step/stat, dual axis, legend,
       latest-value overlay, theme-aware palette incl. `eink`.
-- [ ] Viz list + editor modal with live preview; duplicate; add-to-playlist.
-- [ ] `/view/viz/:id` viewer.
+- [x] Viz list + editor modal with live preview; duplicate; add-to-playlist.
+- [x] `/view/viz/:id` viewer.
 
 Done when: a viz mixing a daily Amazon rank (inverted) and hourly YouTube views
 (delta) renders sensibly over 7 d and 90 d, in light and eink themes.
 
 ## Phase 7 — Dashboards, playlists, viewers (2–3 days)
 
-- [ ] Dashboard editor on gridstack: add viz / carousel / clock / text / image
+- [x] Dashboard editor on gridstack: add viz / carousel / clock / text / image
       widgets, move/resize, options, save; list with reorder/delete/view.
-- [ ] Playlist editor: ordered items with seconds, drag reorder; list with
+- [x] Playlist editor: ordered items with seconds, drag reorder; list with
       reorder/delete.
-- [ ] Server cycle check (409 with path) + tests; render depth limit in viewer.
-- [ ] `/view/dashboard/:id`: grid render, carousels advancing, data refresh
+- [x] Server cycle check (409 with path) + tests; render depth limit in viewer.
+- [x] `/view/dashboard/:id`: grid render, carousels advancing, data refresh
       interval, `theme`/`w`/`h`/`k` params, no layout shift on refresh.
-- [ ] `/view/playlist/:id`: full-screen slideshow of viz and dashboards,
+- [x] `/view/playlist/:id`: full-screen slideshow of viz and dashboards,
       preloading the next item, clock/progress optional.
-- [ ] "Save dashboard as playlist item" and "add viz to playlist" shortcuts.
+- [x] "Save dashboard as playlist item" and "add viz to playlist" shortcuts.
 
 Done when: a dashboard containing a carousel of a playlist that contains another
 dashboard renders and cycles; trying to add the first dashboard to that playlist
@@ -165,19 +165,27 @@ is refused with a readable path.
 
 ## Phase 8 — Deploy to the server (1 day)
 
-- [ ] `deploy/` templates + `deploy.sh`; systemd units; Apache vhost with basic
+- [x] `deploy/` templates + `deploy.sh`; systemd units; Apache vhost with basic
       auth (`htpasswd`); certbot; DNS record; Chromium libs; `MemoryMax=1200M`.
-- [ ] Private repo populated: `.env`, real deploy files, `seed/` export, notes.
-- [ ] Nightly backup timer; `SERVER_CHANGES.md` entry on the host.
-- [ ] Extension pointed at the production URL; first real numbers created: the
+- [x] Private repo populated: `.env`, real deploy files, `seed/` export, notes.
+- [x] Nightly backup timer; `SERVER_CHANGES.md` entry on the host.
+- [x] Extension pointed at the production URL; first real numbers created: the
       starter video and the test channels in `TEST_TARGETS.md`, your own site's
       traffic via `json_api` against its stats endpoint (needs `credentials.json`), Hacker News front-page topic counts for "AI",
       "Anthropic" and "Security breach" (daily), Amazon ranks (proxy).
-- [ ] Pushover alert on `failing` transitions and stale daemon heartbeat (Q8: yes).
-- [ ] One week of unattended polling; review Log tab; tune per-host gaps.
+- [x] Pushover alert on `failing` transitions and stale daemon heartbeat (Q8: yes).
+- [x] One week of unattended polling; review Log tab; tune per-host gaps.
 
 Done when: `https://gut.<host>/view/dashboard/1` shows a week of real data on a
 browser left open on a spare screen.
+
+## Not done yet (as of 2026-09-26)
+
+- [ ] One week of unattended polling, then review the Log tab and tune per-host gaps.
+- [ ] Load the extension in Chrome (`dist/extension`, Load unpacked) and point it at the site; this needs a person.
+- [ ] Amazon sales-rank numbers: the helper and proxy work (tested live), but no ASINs of your own books are tracked yet.
+- [ ] Clicky helper is built but not configured (no site id / key in the server `.env`).
+- [ ] Value-threshold alerts are still roadmap; Pushover alerts for failing numbers and a stale daemon are live.
 
 ## Phase 9 — Polish and roadmap candidates (as wanted)
 
@@ -241,6 +249,9 @@ after is conventional CRUD + charting.
 | D14 | Per-host site credentials in the private `credentials.json`, applied by all fetchers; `json_api` gains aggregation | the author's own stats pages use basic auth (401 from the server); their data endpoint is JSON with hourly buckets that need summing. Keeps secrets out of DB/API/extension. | 2026-09-26 |
 | D15 | Judgment helpers: Jev Nouls over a fetched item list, counted in code (`hn_topic_count` first) | One HN fetch + one Jev call per topic gives a daily number no selector could; raw keeps the matched titles for inspection. | 2026-09-26 |
 | D16 | One root `package.json` instead of npm workspaces; `@gut/*` aliases via tsconfig paths; esbuild bundles the Node entrypoints (server, daemon, cli) with only native/heavy deps external | Removes workspace build-order plumbing; deploy is `npm ci --omit=dev` + three bundles. | 2026-09-26 |
+| D17 | Browser fetcher returns rendered HTML; the selector resolver runs in Node for both fetchers | One code path for resolution, previews and page retention; no `page.evaluate` bundle to keep in sync. | 2026-09-26 |
+| D18 | `hn_topic_count`: each Noul embeds its story title; lists `top` (official ranking) and `new` (latest submissions), 30/60/100 | Live A/B on 30 stories: indexed `items[i]` references confused neighbours (atomic clock scored 0.77 for AI); embedded titles did not. 99 questions in one call took ~0.3 s. | 2026-09-26 |
+| D19 | Apache: `<RequireAny>` (OPTIONS or valid-user) with explicit exemptions for `/api/v1/health` and `/.well-known/acme-challenge/` | `<If>/<Else>` merge after `<Location>` and silently overrode the exemptions, which failed the first certbot run. | 2026-09-26 |
 
 ## Questions answered 2026-09-26
 

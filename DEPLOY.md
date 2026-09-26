@@ -8,9 +8,11 @@ author's install. Host-specific notes for a particular install belong in the pri
 - Linux host with Node ≥ 22, systemd, and a reverse proxy (Apache or nginx)
   terminating TLS. ~1 GB RAM free if the `browser` fetcher is used (headless
   Chromium), else ~150 MB.
-- Chromium system libraries for Puppeteer on Ubuntu:
-  `apt install libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2 libxss1 libxshmfence1 fonts-liberation`
-  (or set `PUPPETEER_EXECUTABLE_PATH` to a distro Chromium and skip the download).
+- Chromium system libraries for Puppeteer on Ubuntu 24.04, plus `unzip` (Puppeteer
+  cannot extract Chrome without it):
+  `apt install unzip libnss3 libatk-bridge2.0-0t64 libgtk-3-0t64 libgbm1 libasound2t64 libxss1 libxshmfence1 fonts-liberation libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libcups2t64`
+  Then, once: `PUPPETEER_CACHE_DIR=~/gutnumber-data/chromium ./node_modules/.bin/puppeteer browsers install chrome` (~400 MB).
+  (Or set `PUPPETEER_EXECUTABLE_PATH` to a distro Chromium and skip the download.)
 - Outbound HTTPS. Optional residential proxy account for hostile sites.
 
 ## Layout on the host
@@ -50,12 +52,17 @@ a tracked `credentials.example.json` shows the shape.
 
 ## Install
 
+The build happens on your own machine; the server only receives `dist/` and runtime
+dependencies.
+
 ```sh
-git clone <public repo> ~/gutnumber && cd ~/gutnumber
-npm ci && npm run build
-cp .env.example ~/gutnumber_pvt/.env   # edit
-mkdir -p ~/gutnumber-data
-sudo htpasswd -c /etc/apache2/gut.htpasswd <username>      # basic auth for the whole site (D11)
+# on the server, once
+mkdir -p ~/gutnumber ~/gutnumber-data ~/gutnumber_pvt
+# copy deploy/local.env.example to ~/gutnumber_pvt/.env and fill it in; add credentials.json if needed
+sudo htpasswd -cB /etc/apache2/gut.htpasswd <username>     # basic auth for the whole site (D11)
+
+# from your machine, every time
+deploy/deploy.sh <ssh-host>     # typecheck + tests, build, rsync dist/, npm ci --omit=dev, restart
 ```
 
 Systemd (templates in `deploy/`, placeholders `{{USER}}`, `{{HOME}}`; `deploy/deploy.sh` fills them):
@@ -68,33 +75,15 @@ Systemd (templates in `deploy/`, placeholders `{{USER}}`, `{{HOME}}`; `deploy/de
 
 Both: `NoNewPrivileges=true`, `PrivateTmp=true`, `EnvironmentFile=<private>/.env`.
 
-Reverse proxy (Apache):
+Reverse proxy (Apache): `deploy/apache-gut.conf` is the template (port 80; certbot
+copies it into the TLS vhost and adds the redirect). It puts the whole site behind
+basic auth with a `<RequireAny>` that lets CORS preflights through, and exempts
+`/api/v1/health` and `/.well-known/acme-challenge/`. Do not use `<If>/<Else>` for
+the OPTIONS exemption: those merge after `<Location>` blocks and override the
+exemptions, which makes certbot's challenge fail with 401 (D19).
 
-```apache
-<VirtualHost *:443>
-  ServerName gut.example.com
-  <Location />
-    AuthType Basic
-    AuthName "gutnumber"
-    AuthUserFile /etc/apache2/gut.htpasswd
-    Require valid-user
-    RequestHeader set X-Forwarded-User %{REMOTE_USER}s
-  </Location>
-  <Location /api/v1/health>
-    Require all granted
-  </Location>
-  ProxyPreserveHost On
-  ProxyPass        / http://127.0.0.1:3100/
-  ProxyPassReverse / http://127.0.0.1:3100/
-  RequestHeader set X-Forwarded-Proto https
-  ErrorLog ${APACHE_LOG_DIR}/gut/error.log
-  CustomLog ${APACHE_LOG_DIR}/gut/access.log combined
-  # certbot adds SSL lines
-</VirtualHost>
-```
-
-`a2enmod proxy proxy_http headers`; port-80 vhost redirects to https;
-`certbot --apache -d gut.example.com`. Create the log dir first (Apache will not
+`a2enmod proxy proxy_http headers`, `a2ensite`, `apache2ctl configtest` before every
+reload, then `certbot --apache -d gut.example.com --redirect`. Create the log dir first (Apache will not
 start otherwise).
 
 `deploy/deploy.sh`: typecheck + unit tests locally, `rsync` to the host
@@ -117,7 +106,8 @@ start otherwise).
 ## Extension install (Chrome)
 
 `chrome://extensions` → Developer mode → Load unpacked → `packages/extension/dist`.
-Options: API URL + the site's basic-auth username and password. Pin the icon. Re-load after each extension build.
+Options: API URL + the site's basic-auth username and password → Save (Chrome asks to
+allow the server's origin) → Test connection. Pin the icon. See `packages/extension/TESTING.md`. Re-load after each extension build.
 
 ---
 
