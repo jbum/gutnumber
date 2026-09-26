@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "types": ["node", "chrome"],
+    "paths": {
+      "@gut/shared": ["./packages/shared/src/index.ts"],
+      "@gut/shared/*": ["./packages/shared/src/*"],
+      "@gut/db": ["./packages/db/src/index.ts"],
+      "@gut/fetch": ["./packages/fetch/src/index.ts"],
+      "@gut/daemon": ["./packages/daemon/src/index.ts"],
+      "@gut/server": ["./packages/server/src/index.ts"]
+    }
+  },
+  "include": ["./packages/*/src", "packages/*/test", "scripts/*.ts", "e2e", "vitest.config.ts"]
+}

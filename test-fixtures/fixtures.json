@@ -1,0 +1,7 @@
+{
+  "youtube-watch.html":  { "url": "https://www.youtube.com/watch?v=UD9X5WxZ5nE", "value": 233368, "note": "No number in the static DOM; only RegexSource works. Trimmed from the real page, 2026-09-26." },
+  "amazon-bullets.html": { "url": "https://www.amazon.com/dp/B0EXAMPLE1", "value": 12345, "note": "Detail-bullets layout. Synthetic, modelled on real markup." },
+  "amazon-table.html":   { "url": "https://www.amazon.com/dp/B0EXAMPLE2", "value": 48211, "note": "Product-details table layout. Synthetic." },
+  "blog-stats.html":     { "url": "https://example.com/stats", "value": 4812 },
+  "hashed-classes.html": { "url": "https://social.example/profile", "value": 27400, "note": "CSS-in-JS classes must not end up in selectors." }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "gutnumber",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Track numbers scraped from public web pages and show them on dashboards.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:client": "vite build --config packages/client/vite.config.ts",
+    "build:extension": "node scripts/build.mjs extension",
+    "dev": "concurrently -n server,daemon,client -c blue,magenta,green \"npm:dev:server\" \"npm:dev:daemon\" \"npm:dev:client\"",
+    "dev:server": "GUTNUMBER_DEV=1 tsx watch packages/server/src/main.ts",
+    "dev:daemon": "GUTNUMBER_DEV=1 tsx watch packages/daemon/src/main.ts",
+    "dev:client": "vite --config packages/client/vite.config.ts",
+    "gut": "tsx packages/cli/src/main.ts",
+    "fixture-site": "tsx scripts/fixture-site.ts",
+    "test": "vitest run",
+    "e2e": "vitest run --config e2e/vitest.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.5",
+    "@typesafe-ai/sdk": "^0.6.0",
+    "better-sqlite3": "^13.0.3",
+    "fastify": "^5.12.5",
+    "linkedom": "^0.18.13",
+    "puppeteer": "^25.12.0",
+    "undici": "^8.11.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/chrome": "^0.3.0",
+    "@types/node": "^26.6.3",
+    "chart.js": "^4.5.1",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "concurrently": "^10.0.5",
+    "date-fns": "^4.4.0",
+    "esbuild": "^0.28.2",
+    "gridstack": "^14.0.0",
+    "preact": "^10.29.8",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  }
+}
