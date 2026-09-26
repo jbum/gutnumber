@@ -34,6 +34,7 @@ Data goes to `./data` in development (`GUTNUMBER_DATA_DIR` overrides).
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): how it fits together
 - [PLAN.md](PLAN.md): phases, decision log
+- [BACKLOG.md](BACKLOG.md): what to pick up next
 - [DATA_MODEL.md](DATA_MODEL.md), [API.md](API.md), [SELECTORS.md](SELECTORS.md)
 - [DEPLOY.md](DEPLOY.md): running it on a Linux host behind Apache
 - [TEST_TARGETS.md](TEST_TARGETS.md): real pages used for manual testing

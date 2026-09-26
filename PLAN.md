@@ -179,13 +179,9 @@ is refused with a readable path.
 Done when: `https://gut.<host>/view/dashboard/1` shows a week of real data on a
 browser left open on a spare screen.
 
-## Not done yet (as of 2026-09-26)
+## Not done yet
 
-- [ ] One week of unattended polling, then review the Log tab and tune per-host gaps.
-- [ ] Load the extension in Chrome (`dist/extension`, Load unpacked) and point it at the site; this needs a person.
-- [ ] Amazon sales-rank numbers: the helper and proxy work (tested live), but no ASINs of your own books are tracked yet.
-- [ ] Clicky helper is built but not configured (no site id / key in the server `.env`).
-- [ ] Value-threshold alerts are still roadmap; Pushover alerts for failing numbers and a stale daemon are live.
+Open items and future work now live in `BACKLOG.md`.
 
 ## Phase 9 — Polish and roadmap candidates (as wanted)
 
