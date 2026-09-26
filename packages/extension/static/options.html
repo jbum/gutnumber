@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gutnumber picker options</title>
+<style>
+  :root { color-scheme: light dark; --bg: #fff; --fg: #1d2330; --muted: #5b6475; --line: #d6dae3; --accent: #2f6fdf; --ok: #17804c; --err: #c0392b; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #16181d; --fg: #e8eaf0; --muted: #9aa3b5; --line: #343945; --accent: #6b9cff; --ok: #4cc38a; --err: #ff7b6b; } }
+  body { font: 14px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--fg); max-width: 520px; margin: 32px auto; padding: 0 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.lede { color: var(--muted); margin: 0 0 24px; }
+  label { display: block; font-weight: 600; margin: 16px 0 4px; }
+  small { display: block; color: var(--muted); font-weight: 400; }
+  input, select { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; font: inherit; }
+  .row { display: flex; gap: 8px; margin-top: 24px; }
+  button { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #status { margin-top: 16px; min-height: 1.5em; }
+  #status.ok { color: var(--ok); } #status.err { color: var(--err); }
+</style>
+</head>
+<body>
+  <h1>Gutnumber picker</h1>
+  <p class="lede">Click the toolbar icon (or press Alt+Shift+G) on any page, then click a number to track it.</p>
+  <label for="apiBase">Server URL <small>Where your gutnumber site runs, e.g. https://gut.example.com</small></label>
+  <input id="apiBase" type="url" placeholder="https://gut.example.com">
+  <label for="user">Username <small>The site's basic-auth login. Leave blank for a local server without auth.</small></label>
+  <input id="user" autocomplete="username">
+  <label for="pass">Password</label>
+  <input id="pass" type="password" autocomplete="current-password">
+  <label for="defaultFrequency">Default polling frequency</label>
+  <select id="defaultFrequency"><option value="5m">Every 5 minutes</option><option value="hourly">Hourly</option><option value="daily" selected>Daily</option><option value="weekly">Weekly</option></select>
+  <div class="row"><button class="primary" id="save">Save</button><button id="test">Test connection</button></div>
+  <div id="status" role="status"></div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

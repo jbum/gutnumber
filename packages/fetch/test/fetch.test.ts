@@ -76,7 +76,7 @@ describe('helper registry', () => {
   });
   it('normalises params', () => {
     const h = getHelper('hn_topic_count')!;
-    expect(normalizeParams(h, { topic: 'AI' })).toEqual({ topic: 'AI', threshold: 0.5, stories: '30' });
+    expect(normalizeParams(h, { topic: 'AI' })).toEqual({ topic: 'AI', threshold: 0.5, list: 'top', stories: '30' });
     expect(() => normalizeParams(h, {})).toThrow(/Topic is required/);
     expect(() => normalizeParams(h, { topic: 'x', stories: '99' })).toThrow(/one of/);
   });

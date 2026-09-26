@@ -11,7 +11,7 @@ export * from './helpers/types.js';
 export * from './helpers/registry.js';
 export { parseChannelFeed, videoIdFrom } from './helpers/youtube.js';
 export { parseSalesRanks } from './helpers/amazon.js';
-export { judgeItems, frontPage } from './helpers/hn_topic_count.js';
+export { judgeItems, frontPage, hnStories } from './helpers/hn_topic_count.js';
 export { aggregateValues } from './helpers/json_api.js';
 export * from './limits.js';
 export * from './notify.js';

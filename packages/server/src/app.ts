@@ -106,7 +106,7 @@ export async function buildServer(deps: ServerDeps): Promise<FastifyInstance> {
   const pickerPath = deps.extensionDir ? join(deps.extensionDir, 'picker.iife.js') : null;
   app.get('/bookmarklet/picker.js', async (_req, reply) => {
     if (!pickerPath || !existsSync(pickerPath)) throw new HttpError(404, 'not_built', 'bookmarklet not built (npm run build)');
-    return reply.type('application/javascript').header('cache-control', 'no-cache').send(readFileSync(pickerPath, 'utf8'));
+    return reply.type('application/javascript; charset=utf-8').header('cache-control', 'no-cache').send(readFileSync(pickerPath, 'utf8'));
   });
 
   // Client SPA: editors at /, viewers at /view/*.

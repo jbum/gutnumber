@@ -32,7 +32,7 @@ if (want('extension') && existsSync('packages/extension/src/background.ts')) {
   const outdir = 'dist/extension';
   rmSync(outdir, { recursive: true, force: true });
   mkdirSync(outdir, { recursive: true });
-  const common = { bundle: true, platform: 'browser', target: 'chrome120', logLevel: 'warning', tsconfig: 'tsconfig.json', legalComments: 'none' };
+  const common = { bundle: true, platform: 'browser', target: 'chrome120', logLevel: 'warning', tsconfig: 'tsconfig.json', legalComments: 'none', charset: 'ascii' }; // ascii: pages may decode the bookmarklet as Latin-1
   await build({ ...common, entryPoints: { background: 'packages/extension/src/background.ts', options: 'packages/extension/src/options.ts' }, outdir, format: 'esm' });
   // The picker is injected with chrome.scripting.executeScript → must be a classic script.
   await build({ ...common, entryPoints: { picker: 'packages/extension/src/picker/main.ts' }, outdir, format: 'iife' });

@@ -23,6 +23,7 @@ beforeAll(async () => {
   site = await startFixtureSite();
   const dir = mkdtempSync(join(tmpdir(), 'gut-e2e-'));
   process.env.GUT_HN_API_BASE = `${site.url}/hn`;
+  process.env.GUT_HN_FIREBASE_BASE = `${site.url}/hn`;
   process.env.TYPESAFE_BASE_URL = `${site.url}/typesafe`;
   config = loadConfig({ dataDir: dir, dbPath: join(dir, 'gutnumber.sqlite'), privateDir: null, typesafeApiKey: 'test-key', tz: 'UTC', httpConcurrency: 4, browserConcurrency: 1 });
   db = openDb(config.dbPath);
@@ -107,7 +108,7 @@ describe('daemon end to end', () => {
     expect(after).toMatchObject({ status: 'ok', last_value: 42 });
   });
 
-  it('hn_topic_count: one HN fetch shared by topics, one Jev call each', async () => {
+  it('hn_topic_count: one HN fetch shared by topics, one Jev call each; top keeps rank order; new list', async () => {
     const hn0 = site.hits.hn ?? 0;
     const jev0 = site.hits.jev ?? 0;
     const ai = createGutnumber(db, { label: 'HN AI', fetcher: 'helper', helper_name: 'hn_topic_count', helper_params: { topic: 'AI (artificial intelligence)' }, frequency: 'daily' });
@@ -118,6 +119,10 @@ describe('daemon end to end', () => {
     expect(JSON.parse(a.last_raw!).matched.map((m: { title: string }) => m.title)).toContain('AI chips are getting cheaper');
     expect(site.hits.hn - hn0).toBe(1);
     expect(site.hits.jev - jev0).toBe(2);
+    expect(JSON.parse(a.last_raw!)).toMatchObject({ list: 'top', total: 6 });
+    const nw = createGutnumber(db, { label: 'HN new AI', fetcher: 'helper', helper_name: 'hn_topic_count', helper_params: { topic: 'AI', list: 'new', stories: '100' }, frequency: 'daily' });
+    const [c] = await tickUntilPolled([nw.id]);
+    expect(c.last_value).toBe(2);
   });
 
   it('the CLI polls a number by slug', async () => {

@@ -72,9 +72,18 @@ export async function startFixtureSite(port = 0): Promise<FixtureSite> {
     return { series: [{ hits: { human: 10 } }, { hits: { human: 20 } }, { hits: { human: 12 } }] };
   });
 
-  app.get<{ Querystring: { hitsPerPage?: string } }>('/hn/api/v1/search', async (req) => {
+  const hnHits = (titles: string[], base: number) => titles.map((title, i) => ({ objectID: String(base + i), title, url: `https://example.com/${i}`, points: 100 - i }));
+  app.get('/hn/v0/topstories.json', async () => {
     count('hn');
-    return { hits: HN_TITLES.map((title, i) => ({ objectID: String(1000 + i), title, url: `https://example.com/${i}`, points: 100 - i })) };
+    return HN_TITLES.map((_, i) => 1000 + i).reverse(); // rank order differs from id order
+  });
+  app.get('/hn/api/v1/search', async () => {
+    count('hn-algolia');
+    return { hits: hnHits(HN_TITLES, 1000) };
+  });
+  app.get('/hn/api/v1/search_by_date', async () => {
+    count('hn-new');
+    return { hits: hnHits(['Brand new AI thing', 'A new database', 'Yet another AI launch'], 5000) };
   });
 
   app.post('/typesafe/v1/systemone', async (req, reply) => {
