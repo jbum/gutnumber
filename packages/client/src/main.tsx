@@ -9,6 +9,7 @@ import { DashboardsTab } from './tabs/Dashboards';
 import { PlaylistsTab } from './tabs/Playlists';
 import { LogTab } from './tabs/Log';
 import { CaptureTab } from './tabs/Capture';
+import { CreditsTab } from './tabs/Credits';
 import { Viewer } from './view/Viewer';
 
 const TABS = [
@@ -18,6 +19,7 @@ const TABS = [
   ['playlists', 'Playlists'],
   ['log', 'Log'],
   ['capture', 'Capture & setup'],
+  ['credits', 'Credits'],
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
@@ -74,6 +76,7 @@ function App() {
         {route.tab === 'playlists' && <PlaylistsTab />}
         {route.tab === 'log' && <LogTab />}
         {route.tab === 'capture' && <CaptureTab />}
+        {route.tab === 'credits' && <CreditsTab />}
       </main>
       <Toasts />
     </div>

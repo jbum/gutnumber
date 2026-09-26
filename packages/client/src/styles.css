@@ -280,3 +280,9 @@ body.viewer #app { height: 100%; }
 :root[data-theme='eink'] .v-dots i { background: #fff; border: 1px solid #000; }
 :root[data-theme='eink'] .v-dots i.on { background: #000; }
 :root[data-theme='eink'] body { background: #fff; }
+
+/* ---------- credits ---------- */
+.credits-body { max-width: 34em; border-top: 1px solid var(--rule); padding-top: 18px; animation: rise .35s both; }
+.credits-body p { font-family: var(--serif); font-size: 26px; line-height: 1.35; margin: 0 0 18px; }
+.credits-body p:first-child::first-letter { font-size: 3.2em; float: left; line-height: .85; margin: 6px 10px 0 0; color: var(--accent); }
+.credits-body b { font-weight: 400; font-style: italic; color: var(--accent); }

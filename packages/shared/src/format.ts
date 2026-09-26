@@ -8,7 +8,25 @@ export function formatValue(value: number | null | undefined, unit?: string | nu
   if (!unit) return n;
   if (PREFIX_UNITS.has(unit)) return unit + n;
   if (unit === '%') return n + '%';
-  return `${n} ${unit}`;
+  return `${n} ${value === 1 ? singular(unit) : unit}`;
+}
+
+/** "stories" → "story", "views" → "view"; leaves non-plurals alone. */
+export function singular(unit: string): string {
+  if (/[^aeiou]ies$/i.test(unit)) return unit.slice(0, -3) + 'y';
+  if (/[^su]s$/i.test(unit)) return unit.slice(0, -1);
+  return unit;
+}
+
+/**
+ * Axis tick label: compact, but with enough digits that neighbouring ticks never
+ * print the same (13.55K and 13.6K, not 13.6K twice). `step` is the tick spacing.
+ */
+export function formatAxis(value: number, step: number): string {
+  const a = Math.abs(value);
+  const [div, suffix] = a >= 1e9 ? [1e9, 'B'] : a >= 1e6 ? [1e6, 'M'] : a >= 1e4 ? [1e3, 'K'] : [1, ''];
+  const decimals = step > 0 ? Math.max(0, Math.min(6, Math.ceil(-Math.log10(step / div) - 1e-9))) : 0;
+  return (value / div).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
 }
 
 /** Compact form for axes and tiles: 1.2K, 3.4M. */

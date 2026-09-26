@@ -10,6 +10,7 @@ section; move an item into `PLAN.md`'s decision log when it lands.
 - [ ] Load the Chrome extension (`dist/extension`, Load unpacked) and point it at the site.
 - [ ] Track the author's own books' Amazon sales ranks (helper + proxy tested live; no ASINs entered yet).
 - [ ] Configure Clicky (site id + key in the server `.env`) or drop the helper.
+- [ ] README screenshots (around 2026-10-03, once the daily charts have a week of data): one dashboard, the Numbers tab and the Visualizations tab, light theme, 1440×900. Leave the author's site traffic out of the public images (use the eInk panel or a screenshot-only dashboard) and crop the Numbers tab to end on a whole row.
 
 ## News-headline sources for Jev topic counts
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { Chart, LineController, BarController, LineElement, BarElement, PointElement, LinearScale, LogarithmicScale, TimeScale, Tooltip, Legend, Filler, type ChartDataset } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { formatCompact, formatValue, type VizConfig, type VizData } from '@gut/shared';
+import { formatAxis, formatCompact, formatValue, type VizConfig, type VizData } from '@gut/shared';
 
 Chart.register(LineController, BarController, LineElement, BarElement, PointElement, LinearScale, LogarithmicScale, TimeScale, Tooltip, Legend, Filler);
 
@@ -98,7 +98,7 @@ export function VizChart({ config, data, theme, compact }: ChartProps) {
       min: nearZero(axis) ? 0 : undefined,
       grid: { color: eink ? '#b5b5b5' : rule, drawTicks: false, display: axis === 'left', lineWidth: 1 },
       border: { display: false },
-      ticks: { color: muted, font: { family: mono, size: compact ? 9 : 11 }, padding: 6, maxTicksLimit: compact ? 4 : 6, callback: (v: number | string) => (unitFor(axis)?.unit === '#' ? '#' : '') + formatCompact(Number(v)) },
+      ticks: { color: muted, font: { family: mono, size: compact ? 9 : 11 }, padding: 6, maxTicksLimit: compact ? 4 : 6, callback: (v: number | string, _i: number, ticks: Array<{ value: number }>) => (unitFor(axis)?.unit === '#' ? '#' : '') + formatAxis(Number(v), ticks.length > 1 ? Math.abs(ticks[1].value - ticks[0].value) : 0) },
     });
 
     chart.current?.destroy();

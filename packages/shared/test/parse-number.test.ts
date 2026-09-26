@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseNumber, findNumbers, formatValue, formatCompact } from '@gut/shared';
+import { parseNumber, findNumbers, formatValue, formatCompact, formatAxis } from '@gut/shared';
 
 describe('parseNumber (SELECTORS.md §4)', () => {
   const cases: Array<[string, Record<string, unknown>, number | null]> = [
@@ -45,5 +45,23 @@ describe('formatValue', () => {
     expect(formatValue(null)).toBe('—');
     expect(formatCompact(70094195)).toBe('70.1M');
     expect(formatCompact(4812)).toBe('4,812');
+  });
+});
+
+describe('singular units and axis labels', () => {
+  it('singularises a count of one', () => {
+    expect(formatValue(1, 'stories')).toBe('1 story');
+    expect(formatValue(1, 'views')).toBe('1 view');
+    expect(formatValue(2, 'stories')).toBe('2 stories');
+    expect(formatValue(1, 'bus')).toBe('1 bus');
+  });
+  it('never prints neighbouring ticks the same', () => {
+    const ticks = [13400, 13450, 13500, 13550, 13600];
+    const labels = ticks.map((t) => formatAxis(t, 50));
+    expect(new Set(labels).size).toBe(ticks.length);
+    expect(labels[1]).toBe('13.45K');
+    expect(formatAxis(226000, 500)).toBe('226.0K');
+    expect(formatAxis(30, 5)).toBe('30');
+    expect(formatAxis(70_000_000, 10_000_000)).toBe('70M');
   });
 });
