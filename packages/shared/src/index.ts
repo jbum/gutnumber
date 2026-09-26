@@ -11,3 +11,4 @@ export * from './selectors/resolve.js';
 export * from './selectors/generate.js';
 export * from './selectors/xpath.js';
 export * from './graph.js';
+export * from './series.js';

@@ -79,7 +79,8 @@ function descendants(e: El, out: El[] = []): El[] {
   return out;
 }
 
-export function evaluateXPath(doc: DocLike, path: string): El | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function evaluateXPath(doc: DocLike, path: string): any {
   const steps = parseXPath(path);
   const root = doc.documentElement;
   if (!steps || !root) return null;

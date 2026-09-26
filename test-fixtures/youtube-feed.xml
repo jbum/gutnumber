@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA"/>
+ <id>yt:channel:HnyfMqiRRG1u-2MsSQLbXA</id>
+ <yt:channelId>HnyfMqiRRG1u-2MsSQLbXA</yt:channelId>
+ <title>Veritasium</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA"/>
+ <author>
+  <name>Veritasium</name>
+  <uri>https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA</uri>
+ </author>
+ <published>2010-07-21T07:18:02+00:00</published>
+ <entry>
+  <id>yt:video:VKlulHwMxgU</id>
+  <yt:videoId>VKlulHwMxgU</yt:videoId>
+  <yt:channelId>UCHnyfMqiRRG1u-2MsSQLbXA</yt:channelId>
+  <title>What happens when you open the valve?</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/VKlulHwMxgU"/>
+  <author>
+   <name>Veritasium</name>
+   <uri>https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA</uri>
+  </author>
+  <published>2026-09-24T13:00:24+00:00</published>
+  <updated>2026-09-25T18:56:00+00:00</updated>
+  <media:group>
+   <media:title>What happens when you open the valve?</media:title>
+   <media:content url="https://www.youtube.com/v/VKlulHwMxgU?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/VKlulHwMxgU/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Take a balloon and fill it with lots of air. Take another one and fill it with less air. Now connect the two via a valve. 
+
+What do you think will happen when you open the valve?</media:description>
+   <media:community>
+    <media:starRating count="36437" average="5.00" min="1" max="5"/>
+    <media:statistics views="938165"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:JsBZOcqZerk</id>
+  <yt:videoId>JsBZOcqZerk</yt:videoId>
+  <yt:channelId>UCHnyfMqiRRG1u-2MsSQLbXA</yt:channelId>
+  <title>The Insane Real Engineering of the Nazi Enigma Machine</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=JsBZOcqZerk"/>
+  <author>
+   <name>Veritasium</name>
+   <uri>https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA</uri>
+  </author>
+  <published>2026-09-21T17:49:57+00:00</published>
+  <updated>2026-09-26T12:15:53+00:00</updated>
+  <media:group>
+   <media:title>The Insane Real Engineering of the Nazi Enigma Machine</media:title>
+   <media:content url="https://www.youtube.com/v/JsBZOcqZerk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/JsBZOcqZerk/hqdefault.jpg" width="480" height="360"/>
+   <media:description>How was the &quot;unbreakable&quot; enigma cracked? Sponsored by Incogni - use code veritasium at https://incogni.com/veritasium to get an exclusive 60% off your annual subscription.
+
+If you’re looking for a molecular modelling kit, try Snatoms, a kit I invented where the atoms snap together magnetically - https://ve42.co/SnatomsV 
+
+For the latest science news, and for an exclusive bonus Q&amp;A with the director of this video, sign up to the Veritasium newsletter - https://ve42.co/Newsletter 
+
+For early access to work in progress videos join our patreon https://ve42.co/VePatreon 
+
+▀▀▀
+0:00 Who invented Enigma?
+4:16 How did Enigma work?
+10:51 The Secret Spy Mansion
+13:10 The First Codebreakers Who Broke Enigma
+16:45 Trying To Decrypt An Enigma Message
+22:35 Who was Alan Turing?
+26:30 How Enigma’s Flaws Were Exploited
+34:27 Breaking Enigma - The Bombe
+41:39 The Naval Enigma
+44:35 What did Alan Turing do after Bletchley Park? 
+
+▀▀▀
+A huge thanks out to Sir Dermot Turing, Jonah Weinbaum, Andrew Fryer, John Pickles, Peter Hoath, Robert Dowell and all of the experts at Bletchley Park &amp; The National Museum of Computing that helped make this video possible!
+
+Shout out to Jared Owen for letting us use his 3D model of the Enigma machine! Check out his amazing video: https://youtu.be/ybkkiGtJmkM?si=fNtZF6StWhiIxRtB
+
+Bletchley Park is a museum and heritage attraction open daily to visitors. To plan your visit and book tickets, head to: https://www.bletchleypark.org.uk/plan-a-visit/
+
+The National Museum of Computing at Bletchley Park is an independent charity housing working historic machines. Plan your visit here: https://www.tnmoc.org/plan-your-visit 
+
+▀▀▀
+Can you decrypt this unbroken Naval Enigma message? Let us know in the comments!
+
+JCRSAJTGSJEYEXYKKZZSHVUOCTRFRCRPFVYPLKPPLGRHVVBBTBRSXSWXGGTYTVKQNGSCHVGF
+
+Universal Enigma simulator by Daniel Palloks: https://ve42.co/EnigmaSim
+
+▀▀▀
+References: https://ve42.co/BletchleyRefs 
+
+Visual References: https://ve42.co/BletchleyVisRefs 
+
+▀▀▀
+Special thanks to our Patreon supporters:
+Adam Foreman, Albert Wenger, Alex Porter, Alexander Tamas, André Powell, Anton Ragin, Balkrishna Heroor, Bertrand Serlet, Blake Byers, Bruce, Bryan Ackermann, Chris Brewer, Data Don, Dave Kircher, David Johnston, David Tseng, EJ Alexandra, Evgeny Skvortsov, Garrett Mueller, Gnare, gpoly, Hayden Christensen, Hong Thai Le, Ibby Hadeed, Jeromy Johnson, Juan Benet, Kelcey Steele, Kyi, Lee Redden, Marinus Kuivenhoven, Mark Heising, Meekay, meg noah, Michael Krugman, Moebiusol - Cristian, Orlando Bassotto, Parsee Health, Patreon mp22, Paul Peijzel, Robson, Sam Lutfi, Shalva Bukia, Sinan Taifour, Steven, Sweet_Nemo, Tair Aurmont, Tj Steyn, Ubiquity Ventures, Vahe Andonians, wolfee
+
+
+▀▀▀
+Writers: James Moore, Gregor Čavlović, Darius Garewal &amp; Emilia Gyles
+Producer &amp; Director: James Moore
+Additional Directing: Darius Garewal
+Presenters: Gregor Čavlović &amp; Derek Muller
+Editor: Peter Nelson
+Additional Editing: James Stuart &amp; Trenton Oliver
+Camera Operators: Rob Newman &amp; Darius Garewal
+Animators: Emma Wright, Domonkos Józsa, Alex Drakoulis, Andrew Neet, Rokas Vikšraitis &amp; Aleksandrs Loginovs
+Illustrator: Jakub Misiek
+Researchers: Darius Garewal &amp; Gabe Strong
+Thumbnail Designers: Abdallah Rabah, Daniel Ellacott &amp; Ben Powell
+Production Team: Jess Bishop-Laggett, Glen Griffiths, Matthew Cavanagh &amp; Anna Milkovic
+Executive Producers: Gregor Čavlović, Emilia Gyles, Henry van Dyck &amp; Derek Muller
+
+Additional video/photos supplied by Getty Images and Storyblocks
+Music from Epidemic Sound 
+&amp; Sprach Zarathustra - Conducted by Philip Milman (https://pmmusic.pro/)</media:description>
+   <media:community>
+    <media:starRating count="82272" average="5.00" min="1" max="5"/>
+    <media:statistics views="7366580"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>
