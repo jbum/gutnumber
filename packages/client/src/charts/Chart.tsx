@@ -113,7 +113,7 @@ export function VizChart({ config, data, theme, compact }: ChartProps) {
         parsing: false as never,
         normalized: true,
         scales: {
-          x: { type: 'time', grid: { display: false }, border: { color: rule }, ticks: { color: muted, font: { family: mono, size: compact ? 9 : 11 }, maxRotation: 0, autoSkipPadding: 18 } },
+          x: { type: 'time', min: data.range.from * 1000, max: data.range.to * 1000, offset: config.type === 'bar', grid: { display: false }, border: { color: rule }, ticks: { color: muted, font: { family: mono, size: compact ? 9 : 11 }, maxRotation: 0, autoSkipPadding: 18 } },
           y: yScale('left'),
           ...(hasRight ? { y2: yScale('right') } : {}),
         },
