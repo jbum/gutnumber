@@ -130,6 +130,10 @@ interface VizConfig {
     axis?: 'left' | 'right';
     invert?: boolean;                                 // sales rank: lower is better, draw it upward
   }>;
+  annotations: Array<{                              // dated notes drawn as dashed vertical lines (default [])
+    at: string;                                     // 'YYYY-MM-DD' (local midnight) or 'YYYY-MM-DDTHH:MM' (local time)
+    label: string;                                  // 1-120 chars, e.g. 'Scraper: top 100 from here'
+  }>;
   options: {
     subtitle?: string;
     legend: boolean;

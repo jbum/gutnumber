@@ -233,6 +233,7 @@ pre.code { font-family: var(--mono); font-size: 11px; background: var(--paper-2)
 .viz-preview h3 { font-family: var(--serif); font-weight: 400; font-size: 26px; margin: 2px 0 10px; }
 .series-row { display: grid; grid-template-columns: 34px minmax(0,1.1fr) minmax(0,1.3fr) 104px auto auto; gap: 6px; align-items: center; margin-bottom: 6px; }
 .series-row input[type=color] { width: 34px; height: 34px; padding: 0; border: 1px solid var(--rule-strong); border-radius: 8px; background: none; }
+.annotation-row { display: grid; grid-template-columns: 150px minmax(0,1fr) auto; gap: 6px; align-items: center; margin-bottom: 6px; }
 .opts { display: flex; gap: 4px 18px; flex-wrap: wrap; }
 .opts .check { margin-top: 0; }
 @media (max-width: 900px) { .viz-editor { grid-template-columns: 1fr; } .series-row { grid-template-columns: 34px 1fr 1fr; } }

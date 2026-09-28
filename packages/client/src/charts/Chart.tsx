@@ -1,11 +1,50 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { Chart, LineController, BarController, LineElement, BarElement, PointElement, LinearScale, LogarithmicScale, TimeScale, Tooltip, Legend, Filler, type ChartDataset } from 'chart.js';
+import { Chart, type Plugin, LineController, BarController, LineElement, BarElement, PointElement, LinearScale, LogarithmicScale, TimeScale, Tooltip, Legend, Filler, type ChartDataset } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { formatAxis, formatCompact, formatValue, type VizConfig, type VizData } from '@gut/shared';
+import { annotationTime, formatAxis, formatCompact, formatValue, type VizAnnotation, type VizConfig, type VizData } from '@gut/shared';
 
 Chart.register(LineController, BarController, LineElement, BarElement, PointElement, LinearScale, LogarithmicScale, TimeScale, Tooltip, Legend, Filler);
 
 const cssVar = (name: string, el: Element = document.documentElement) => getComputedStyle(el).getPropertyValue(name).trim();
+
+/** Dashed vertical line with a small label for each annotation inside the visible time range. */
+function annotationPlugin(notes: VizAnnotation[], o: { color: string; bg: string; font: string; size: number }): Plugin {
+  return {
+    id: 'gutAnnotations',
+    afterDatasetsDraw(chart) {
+      const x = chart.scales.x;
+      const { top, bottom, left, right } = chart.chartArea;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = `${o.size}px ${o.font}`;
+      ctx.fillStyle = o.color;
+      ctx.strokeStyle = o.color;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      for (const n of notes) {
+        const t = annotationTime(n.at);
+        if (t == null) continue;
+        const px = Math.round(x.getPixelForValue(t * 1000)) + 0.5;
+        if (px < left || px > right) continue;
+        ctx.beginPath();
+        ctx.moveTo(px, top);
+        ctx.lineTo(px, bottom);
+        ctx.stroke();
+        // Label beside the line, flipped to the left when it would run off the right edge.
+        const w = ctx.measureText(n.label).width;
+        const flip = px + 4 + w > right;
+        const tx = flip ? px - 4 : px + 4;
+        ctx.fillStyle = o.bg; // keep the label legible over the lines
+        ctx.fillRect(flip ? tx - w - 2 : tx - 2, top + 1, w + 4, o.size + 4);
+        ctx.fillStyle = o.color;
+        ctx.textAlign = flip ? 'right' : 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(n.label, tx, top + 3);
+      }
+      ctx.restore();
+    },
+  };
+}
 
 export interface ChartProps {
   config: VizConfig;
@@ -104,6 +143,7 @@ export function VizChart({ config, data, theme, compact }: ChartProps) {
     chart.current?.destroy();
     chart.current = new Chart(el, {
       type: config.type === 'bar' ? 'bar' : 'line',
+      plugins: config.annotations?.length ? [annotationPlugin(config.annotations, { color: eink ? '#000' : muted, bg: eink ? '#fff' : cssVar('--paper', el) || '#fff', font: mono, size: compact ? 9 : 11 })] : [],
       data: { datasets: datasets as never },
       options: {
         responsive: true,

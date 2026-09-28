@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { VizConfigSchema, type VizConfig, type Visualization, type VizSeries, type Transform, type VizData } from '@gut/shared';
+import { VizConfigSchema, type VizConfig, type Visualization, type VizSeries, type VizAnnotation, type Transform, type VizData } from '@gut/shared';
 import { api, type GutnumberRow } from '../api';
 import { Modal, toast, toastError, confirmDialog, useAsync } from '../components/ui';
 import { VizChart } from '../charts/Chart';
@@ -85,11 +85,14 @@ const TRANSFORMS: Array<[string, string]> = [
   ['bucket:week:last', 'Weekly (last value)'],
 ];
 
+/** Today as YYYY-MM-DD in local time. */
+const localDate = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 export function VizEditor({ viz, onClose, onSaved }: { viz: Visualization | null; onClose: () => void; onSaved: (v: Visualization) => void }) {
   const numbers = useAsync(() => api.numbers(), []);
   const playlists = useAsync(() => api.playlists(), []);
   const [title, setTitle] = useState(viz?.title ?? '');
-  const [config, setConfig] = useState<VizConfig>(viz ? structuredClone(viz.config) : emptyConfig());
+  const [config, setConfig] = useState<VizConfig>(viz ? VizConfigSchema.parse(structuredClone(viz.config)) : emptyConfig()); // parse fills fields added since it was saved
   const [seconds, setSeconds] = useState(viz?.carousel_seconds ?? 20);
   const [addTo, setAddTo] = useState('');
   const [data, setData] = useState<VizData | null>(null);
@@ -105,12 +108,14 @@ export function VizEditor({ viz, onClose, onSaved }: { viz: Visualization | null
 
   const setOpt = (k: keyof VizConfig['options'], v: unknown) => setConfig((c) => ({ ...c, options: { ...c.options, [k]: v } }));
   const setSeries = (i: number, s: Partial<VizSeries>) => setConfig((c) => ({ ...c, series: c.series.map((x, j) => (j === i ? { ...x, ...s } : x)) }));
+  const setNote = (i: number, a: Partial<VizAnnotation>) => setConfig((c) => ({ ...c, annotations: c.annotations.map((x, j) => (j === i ? { ...x, ...a } : x)) }));
   const addSeries = (g: GutnumberRow) => {
     setConfig((c) => ({ ...c, series: [...c.series, { gutnumber_id: g.id, transform: { kind: 'raw' }, invert: g.unit === '#' || undefined }] }));
     if (!title) setTitle(g.label);
   };
 
   const save = async () => {
+    if (config.annotations.some((a) => !a.label.trim() || !a.at)) return toast('Each annotation needs a date and a label');
     setBusy(true);
     try {
       const body = { title: title || 'Untitled', config, carousel_seconds: seconds };
@@ -156,6 +161,15 @@ export function VizEditor({ viz, onClose, onSaved }: { viz: Visualization | null
             <option value="">＋ Add a number…</option>
             {unused.map((g) => <option value={g.id}>{g.label}</option>)}
           </select>
+          <label class="lbl">Annotations</label>
+          {(config.annotations ?? []).map((a, i) => (
+            <div class="annotation-row" key={i}>
+              <input class="field" type="date" value={a.at.slice(0, 10)} onInput={(e) => setNote(i, { at: (e.target as HTMLInputElement).value })} aria-label="Annotation date" />
+              <input class="field" value={a.label} placeholder="What changed" onInput={(e) => setNote(i, { label: (e.target as HTMLInputElement).value })} aria-label="Annotation label" />
+              <button class="icon-btn" aria-label="Remove annotation" onClick={() => setConfig((c) => ({ ...c, annotations: c.annotations.filter((_, j) => j !== i) }))}>✕</button>
+            </div>
+          ))}
+          <button class="btn small" onClick={() => setConfig((c) => ({ ...c, annotations: [...(c.annotations ?? []), { at: localDate(), label: '' }] }))}>＋ Add annotation</button>
           <label class="lbl">Options</label>
           <div class="opts">
             <label class="check"><input type="checkbox" checked={config.options.legend} onChange={(e) => setOpt('legend', (e.target as HTMLInputElement).checked)} /> Legend</label>

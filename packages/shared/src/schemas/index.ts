@@ -85,6 +85,20 @@ export const SeriesSchema = z.object({
   invert: z.boolean().optional(),
 });
 
+/** `YYYY-MM-DD` (local midnight) or `YYYY-MM-DDTHH:MM` (local time) → epoch seconds; null if unparseable. */
+export function annotationTime(at: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(at.trim());
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] ?? 0), Number(m[5] ?? 0));
+  return Number.isNaN(d.getTime()) ? null : Math.floor(d.getTime() / 1000);
+}
+
+/** A dated note drawn as a vertical line across the chart (a method change, a launch, an outage). */
+export const AnnotationSchema = z.object({
+  at: z.string().refine((s) => annotationTime(s) != null, 'at must be YYYY-MM-DD or YYYY-MM-DDTHH:MM'),
+  label: z.string().min(1).max(120),
+});
+
 export const VizOptionsSchema = z.object({
   subtitle: z.string().max(200).optional(),
   legend: z.boolean().default(true),
@@ -99,6 +113,7 @@ export const VizConfigSchema = z.object({
   type: z.enum(['line', 'bar', 'area', 'step', 'stat']).default('line'),
   range: RangeSchema.default({ preset: '7d' }),
   series: z.array(SeriesSchema).max(20).default([]),
+  annotations: z.array(AnnotationSchema).max(50).default([]),
   options: VizOptionsSchema.default({ legend: true, y_from_zero: false, log_scale: false, show_latest: true, points: 600 }),
 });
 
@@ -152,6 +167,7 @@ export const PlaylistInputSchema = z.object({
 
 export type VizConfig = z.infer<typeof VizConfigSchema>;
 export type VizSeries = z.infer<typeof SeriesSchema>;
+export type VizAnnotation = z.infer<typeof AnnotationSchema>;
 export type Transform = z.infer<typeof TransformSchema>;
 export type DashboardItem = z.infer<typeof DashboardItemSchema>;
 export type DashboardLayout = z.infer<typeof DashboardLayoutSchema>;
