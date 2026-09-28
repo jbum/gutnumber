@@ -183,6 +183,8 @@ interface Helper {
   title: string;           // shown in the editor's "New from helper" menu
   params: HelperParam[];   // [{ key, label, type: 'string'|'number'|'select'|'secret', required, help, options? }]
   fetch(params: Record<string, unknown>, ctx: FetchContext): Promise<{ value: number; raw: string }>;
+  /** Optional: dated points newer than `since` (null = all), for sources with their own history (D20). */
+  history?(params: Record<string, unknown>, ctx: FetchContext, since: number | null): Promise<Array<{ ts: number; value: number; raw: string }>>;
 }
 ```
 
@@ -194,8 +196,21 @@ site over a period), `json_api` (URL + JSONPath + optional aggregation `sum|last
 over the matched values + headers; the general escape hatch, and the right tool
 for your own sites' stats endpoints), `hn_topic_count` (below), `amazon_salesrank` (ASIN → overall or per-category rank, through the
 proxy, with http→browser fallback). Personal helpers load from
-`$GUTNUMBER_PRIVATE_DIR/helpers/*.js` at startup. The editor renders a form from
+`$GUTNUMBER_PRIVATE_DIR/helpers/*.{js,mjs}` at startup. A module's default export is a
+Helper, a Helper[], or a function `(toolkit) => Helper | Helper[]`. The toolkit
+(`FetchError`, `TypeSafeClient`, `noul`, `cached`) exists because bare imports of this
+repo's dependencies don't resolve from a directory outside it. The editor renders a form from
 `params` so helper-based numbers are created in the UI, not by hand.
+
+**History helpers (D20).** Some sources keep their own dated history, such as a scraper's
+per-run files or a stats API with a daily series. A helper with `history()` is polled
+through that function instead of `fetch()`. The daemon passes the timestamp of the
+number's newest sample and records every newer point at its own time, not at poll
+time. The first poll of a new number, which has no samples, therefore backfills
+everything the source has. Later polls add only what is new, and a poll with nothing
+new is still an ok poll that keeps the last value. `fetch()` still serves previews and
+`gut test-helper`. `gut backfill <id>` re-reads the whole history and records any
+points the number is missing, for example after a gap.
 
 **Judgment helpers (D15).** Some numbers are counts of things that satisfy a
 semantic test, which no selector can express: "how many Hacker News front-page

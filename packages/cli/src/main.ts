@@ -2,7 +2,7 @@ import { parseArgs } from 'node:util';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  loadConfig, openDb, listGutnumbers, getGutnumber, createGutnumber, updateGutnumber, deleteGutnumber, exportAll, importAll, backupDb, insertSamples,
+  loadConfig, openDb, listGutnumbers, getGutnumber, createGutnumber, updateGutnumber, deleteGutnumber, exportAll, importAll, backupDb, insertSamples, recordPoll, getPoints, lastSample, now,
   type ExportData,
 } from '@gut/db';
 import { PollContext, pollGutnumber, previewFetch, testHelper, listHelpers, getHelper, normalizeParams, loadCredentials, loadPrivateHelpers } from '@gut/fetch';
@@ -24,6 +24,8 @@ const HELP = `gut — gutnumber command line
   gut export [file]                         definitions only (no samples) as JSON
   gut import <file> [--dry-run]             upsert definitions by slug/title
   gut import-samples <id|slug> <file.json>  [[ts, value], ...] or [{ts|t, value}, ...] history
+  gut backfill <id|slug>                    history helpers: record every dated sample the source has
+                                            that this number is missing (the first poll does this too)
   gut backup                                online SQLite backup into $GUTNUMBER_DATA_DIR/backups
 
 Environment: GUTNUMBER_DATA_DIR, GUTNUMBER_PRIVATE_DIR (see .env.example).`;
@@ -161,6 +163,19 @@ async function run() {
       const rows = JSON.parse(readFileSync(args[1] ?? die('file required'), 'utf8')) as Array<[number, number] | { ts?: number; t?: string | number; value: number }>;
       const norm = rows.map((r) => (Array.isArray(r) ? { ts: r[0], value: r[1] } : { ts: typeof r.ts === 'number' ? r.ts : Math.floor(Date.parse(String(r.t)) / 1000), value: Number(r.value) })).filter((r) => Number.isFinite(r.ts) && Number.isFinite(r.value));
       console.log(`imported ${insertSamples(db, g.id, norm)} samples into ${g.slug}`);
+      return;
+    }
+    case 'backfill': {
+      const g = getGutnumber(db, args[0] ?? '') ?? die(`no number ${args[0]}`);
+      const h = (g.helper_name ? getHelper(g.helper_name) : null) ?? die(`${g.slug} is not a helper number`);
+      if (!h.history) die(`helper ${h.name} has no history to backfill from`);
+      const have = new Set(getPoints(db, g.id, 0, 2 ** 31).map(([ts]) => ts));
+      const pts = (await h.history!(normalizeParams(h, g.helper_params ?? {}), ctx().helperContext(), null)).filter((p) => !have.has(p.ts));
+      const newest = pts.at(-1);
+      const current = newest && newest.ts > (lastSample(db, g.id)?.ts ?? -Infinity);
+      recordPoll(db, g, { ts: now(), ok: true, samples: pts, strategy: 'helper', fetcher: 'helper', message: `backfill: ${pts.length} samples`, ...(current ? { value: newest.value, raw: newest.raw } : {}) }, g.next_due_at ?? now());
+      for (const p of pts) console.log(`${new Date(p.ts * 1000).toISOString().slice(0, 10)}  ${formatValue(p.value, g.unit, g.decimals)}`);
+      console.log(`backfilled ${pts.length} samples into ${g.slug}`);
       return;
     }
     case 'backup': {

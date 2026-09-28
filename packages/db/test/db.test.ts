@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import { openDb, createGutnumber, updateGutnumber, deleteGutnumber, getGutnumber, claimDue, recordPoll, createVisualization, createDashboard, createPlaylist, updateDashboard, updatePlaylist, deleteVisualization, deletePlaylist, getDashboard, getPlaylist, vizData, exportAll, importAll, listGutnumbers, insertSamples, Conflict, type DB } from '@gut/db';
+import { openDb, createGutnumber, updateGutnumber, deleteGutnumber, getGutnumber, claimDue, recordPoll, createVisualization, createDashboard, createPlaylist, updateDashboard, updatePlaylist, deleteVisualization, deletePlaylist, getDashboard, getPlaylist, vizData, exportAll, importAll, listGutnumbers, insertSamples, getPoints, Conflict, type DB } from '@gut/db';
 
 const bundle = { version: 1 as const, selectors: [{ type: 'CssSelector' as const, value: '#x' }, { type: 'TextQuoteSelector' as const, exact: '1', prefix: 'Rank: ' }] };
 let db: DB;
@@ -43,6 +43,14 @@ describe('gutnumbers', () => {
     expect(getGutnumber(db, g.id)).toMatchObject({ status: 'failing', consecutive_failures: 10 });
     const r = recordPoll(db, getGutnumber(db, g.id)!, { ts: t + 100, ok: true, value: 9, strategy: 'CssSelector' }, t + 99999);
     expect(r.recovered).toBe(true);
+  });
+  it('records dated samples from a history helper; an empty history keeps the last value', () => {
+    const g = createGutnumber(db, { label: 'H', fetcher: 'helper', helper_name: 'x', frequency: 'daily' });
+    const t = 1_800_000_000;
+    recordPoll(db, g, { ts: t, ok: true, value: 20, raw: 'b', strategy: 'helper', samples: [{ ts: t - 200, value: 10, raw: 'a' }, { ts: t - 100, value: 20, raw: 'b' }] }, t + 86400);
+    expect(getPoints(db, g.id, 0, t)).toEqual([[t - 200, 10], [t - 100, 20]]);
+    recordPoll(db, getGutnumber(db, g.id)!, { ts: t + 50, ok: true, strategy: 'helper', samples: [] }, t + 86400);
+    expect(getGutnumber(db, g.id)).toMatchObject({ status: 'ok', last_value: 20, last_raw: 'b', last_polled_at: t + 50 });
   });
 });
 

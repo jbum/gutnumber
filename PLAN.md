@@ -248,6 +248,7 @@ after is conventional CRUD + charting.
 | D17 | Browser fetcher returns rendered HTML; the selector resolver runs in Node for both fetchers | One code path for resolution, previews and page retention; no `page.evaluate` bundle to keep in sync. | 2026-09-26 |
 | D18 | `hn_topic_count`: each Noul embeds its story title; lists `top` (official ranking) and `new` (latest submissions), 30/60/100 | Live A/B on 30 stories: indexed `items[i]` references confused neighbours (atomic clock scored 0.77 for AI); embedded titles did not. 99 questions in one call took ~0.3 s. | 2026-09-26 |
 | D19 | Apache: `<RequireAny>` (OPTIONS or valid-user) with explicit exemptions for `/api/v1/health` and `/.well-known/acme-challenge/` | `<If>/<Else>` merge after `<Location>` and silently overrode the exemptions, which failed the first certbot run. | 2026-09-26 |
+| D20 | Helpers may implement `history(params, ctx, since)`; the daemon records its dated points in place of one sample at poll time, so a new number backfills on its first poll. `gut backfill` re-fetches the whole history. Private helpers may export a factory that receives a toolkit of the app's dependencies. | Sources that keep their own history (scraper runs twice a week) would otherwise record the same scan again at every poll, stamped with the wrong time, and could never show the months before the number was created. Private helpers live outside the package tree, so they cannot import its dependencies directly. | 2026-09-28 |
 
 ## Questions answered 2026-09-26
 

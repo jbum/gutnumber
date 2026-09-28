@@ -254,6 +254,8 @@ export interface PollRecord {
   duration_ms?: number | null;
   proxy_used?: boolean;
   suspect?: boolean;
+  /** Dated samples from a history helper, recorded instead of one sample at `ts` (D20). */
+  samples?: Array<{ ts: number; value: number; raw?: string | null }>;
 }
 
 export interface RecordOutcome {
@@ -283,13 +285,18 @@ export function recordPoll(db: DB, g: Gutnumber, rec: PollRecord, next_due_at: n
       rec.proxy_used ? 1 : 0,
     );
     const cur = mustGetGutnumber(db, g.id);
-    if (rec.ok && rec.value !== undefined) {
-      db.prepare('INSERT INTO samples (gutnumber_id, ts, value, raw, strategy) VALUES (?,?,?,?,?)').run(g.id, rec.ts, rec.value, truncate(rec.raw, 4000), rec.strategy ?? null);
+    if (rec.ok && (rec.value !== undefined || rec.samples)) {
+      const ins = db.prepare('INSERT INTO samples (gutnumber_id, ts, value, raw, strategy) VALUES (?,?,?,?,?)');
+      if (rec.samples) for (const s of rec.samples) ins.run(g.id, s.ts, s.value, truncate(s.raw ?? null, 4000), rec.strategy ?? null);
+      else ins.run(g.id, rec.ts, rec.value, truncate(rec.raw, 4000), rec.strategy ?? null);
       const status = computeStatus(db, cur);
+      // A history poll with nothing new keeps the last value.
+      const value = rec.value ?? cur.last_value;
+      const raw = rec.value !== undefined ? truncate(rec.raw, 4000) : cur.last_raw;
       db.prepare(
         `UPDATE gutnumbers SET running_since = NULL, last_polled_at = ?, last_value = ?, last_raw = ?, last_strategy = ?, last_error = NULL,
            consecutive_failures = 0, status = ?, next_due_at = ? WHERE id = ?`,
-      ).run(rec.ts, rec.value, truncate(rec.raw, 4000), rec.strategy ?? null, status, next_due_at, g.id);
+      ).run(rec.ts, value, raw, rec.strategy ?? null, status, next_due_at, g.id);
       return { status, becameFailing: false, recovered: cur.status === 'failing' };
     }
     const failures = cur.consecutive_failures + 1;

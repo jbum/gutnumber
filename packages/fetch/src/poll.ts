@@ -7,7 +7,7 @@ import { FetchError, asFetchError } from './errors.js';
 import { proxyUrl } from './proxy.js';
 import type { CredentialLookup } from './credentials.js';
 import { getHelper, normalizeParams } from './helpers/registry.js';
-import type { HelperContext } from './helpers/types.js';
+import type { HelperContext, HistoryPoint } from './helpers/types.js';
 import { makeLimits, type Limits } from './limits.js';
 
 export type PageFetcher = 'http' | 'browser';
@@ -39,6 +39,8 @@ export interface PollResult {
   html?: string;
   screenshot?: Buffer;
   attempts: string[];
+  /** History helpers: dated samples to record in place of one sample at poll time (D20). */
+  samples?: HistoryPoint[];
 }
 
 export interface PollContextOptions {
@@ -154,7 +156,11 @@ function readValue(page: FetchedPage, bundle: Bundle) {
 const FALLBACK_TO_BROWSER = new Set<ErrorClass>(['bot_wall', 'selector_miss', 'parse_fail']);
 
 /** Poll one gutnumber. Never throws: failures come back as { ok: false }. */
-export async function pollGutnumber(g: Pick<Gutnumber, 'id' | 'url' | 'fetcher' | 'bundle' | 'proxy' | 'helper_name' | 'helper_params'>, ctx: PollContext): Promise<PollResult> {
+export async function pollGutnumber(
+  g: Pick<Gutnumber, 'id' | 'url' | 'fetcher' | 'bundle' | 'proxy' | 'helper_name' | 'helper_params'>,
+  ctx: PollContext,
+  o: { since?: number | null } = {},
+): Promise<PollResult> {
   const started = Date.now();
   const attempts: string[] = [];
   const useProxy = g.proxy === 'residential';
@@ -166,6 +172,11 @@ export async function pollGutnumber(g: Pick<Gutnumber, 'id' | 'url' | 'fetcher' 
     attempts.push(`helper:${h.name}`);
     try {
       const params = normalizeParams(h, g.helper_params ?? {});
+      if (h.history && o.since !== undefined) {
+        const pts = (await h.history(params, ctx.helperContext(), o.since)).filter((pt) => Number.isFinite(pt.value) && (o.since == null || pt.ts > o.since));
+        const last = pts.at(-1);
+        return done({ ok: true, value: last?.value, raw: last?.raw, samples: pts, strategy: 'helper', fetcher: 'helper', proxy_used: false, message: pts.length ? `${pts.length} new dated sample${pts.length === 1 ? '' : 's'}` : 'no new data' });
+      }
       const r = await h.fetch(params, ctx.helperContext());
       if (!Number.isFinite(r.value)) throw new FetchError('parse_fail', `helper returned ${r.value}`);
       return done({ ok: true, value: r.value, raw: r.raw, strategy: 'helper', fetcher: 'helper', proxy_used: false });

@@ -21,6 +21,13 @@ export interface HelperResult {
   raw: string;
 }
 
+/** One timestamped value a helper reconstructs from its source's own history. */
+export interface HistoryPoint {
+  ts: number;
+  value: number;
+  raw: string;
+}
+
 export interface HelperContext {
   config: Config;
   credentialsFor: CredentialLookup;
@@ -40,6 +47,12 @@ export interface Helper {
   /** Suggested defaults for a new number made from this helper. */
   suggest?: (params: Record<string, unknown>) => { label?: string; unit?: string; frequency?: '5m' | 'hourly' | 'daily' | 'weekly' };
   fetch(params: Record<string, unknown>, ctx: HelperContext): Promise<HelperResult>;
+  /**
+   * Sources that keep their own dated history. Points newer than `since` (null = everything).
+   * When present the daemon records these instead of one sample per poll, so a new number
+   * backfills on its first poll and later polls add only what is new (D20).
+   */
+  history?(params: Record<string, unknown>, ctx: HelperContext, since: number | null): Promise<HistoryPoint[]>;
 }
 
 /** Cache a promise in the per-tick cache so concurrent callers share it. */

@@ -7,6 +7,9 @@ import { youtubeChannelFeed, youtubeVideoStats, youtubeChannelStats } from './yo
 import { hnTopicCount } from './hn_topic_count.js';
 import { clickyStats } from './clicky.js';
 import { amazonSalesrank } from './amazon.js';
+import { TypeSafeClient, noul } from '@typesafe-ai/sdk';
+import { FetchError } from '../errors.js';
+import { cached } from './types.js';
 
 const registry = new Map<string, Helper>();
 for (const h of [youtubeChannelFeed, youtubeVideoStats, youtubeChannelStats, hnTopicCount, jsonApi, clickyStats, amazonSalesrank]) registry.set(h.name, h);
@@ -18,7 +21,17 @@ export function registerHelper(h: Helper): void {
 export const getHelper = (name: string) => registry.get(name) ?? null;
 export const listHelpers = () => [...registry.values()];
 
-/** Personal helpers from $GUTNUMBER_PRIVATE_DIR/helpers/*.{js,mjs}; default export is a Helper or Helper[]. */
+/**
+ * What a private helper factory receives. Private helpers live outside this package, so bare
+ * imports of its dependencies would not resolve from there; they get them from here instead.
+ */
+export const helperToolkit = { FetchError, TypeSafeClient, noul, cached };
+export type HelperToolkit = typeof helperToolkit;
+
+/**
+ * Personal helpers from $GUTNUMBER_PRIVATE_DIR/helpers/*.{js,mjs}. The default export is a Helper,
+ * a Helper[], or a function (toolkit) => Helper | Helper[].
+ */
 export async function loadPrivateHelpers(privateDir: string | null, log: (m: string) => void = () => {}): Promise<string[]> {
   if (!privateDir) return [];
   const dir = join(privateDir, 'helpers');
@@ -27,7 +40,8 @@ export async function loadPrivateHelpers(privateDir: string | null, log: (m: str
   for (const f of readdirSync(dir).filter((f) => /\.(m?js)$/.test(f)).sort()) {
     try {
       const mod = await import(pathToFileURL(join(dir, f)).href);
-      const list = ([] as Helper[]).concat(mod.default ?? mod.helpers ?? []);
+      const exp = mod.default ?? mod.helpers ?? [];
+      const list = ([] as Helper[]).concat(typeof exp === 'function' ? await exp(helperToolkit) : exp);
       for (const h of list) {
         registerHelper(h);
         loaded.push(h.name);

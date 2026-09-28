@@ -1,4 +1,4 @@
-import { claimDue, recordPoll, previousValue, setSetting, getSetting, releaseClaims, type DB, type PollRecord, type RecordOutcome } from '@gut/db';
+import { claimDue, recordPoll, previousValue, lastSample, setSetting, getSetting, releaseClaims, type DB, type PollRecord, type RecordOutcome } from '@gut/db';
 import type { Gutnumber } from '@gut/shared';
 
 /**
@@ -9,6 +9,7 @@ export interface Store {
   claimDue(now: number, limit: number): Gutnumber[];
   record(g: Gutnumber, rec: PollRecord, nextDueAt: number): RecordOutcome;
   previousValue(id: number): number | null;
+  lastSampleTs(id: number): number | null;
   heartbeat(now: number): void;
   getSetting(key: string): string | null;
   setSetting(key: string, value: string): void;
@@ -25,6 +26,9 @@ export class SqliteStore implements Store {
   }
   previousValue(id: number) {
     return previousValue(this.db, id);
+  }
+  lastSampleTs(id: number) {
+    return lastSample(this.db, id)?.ts ?? null;
   }
   heartbeat(now: number) {
     setSetting(this.db, 'daemon_heartbeat', String(now));

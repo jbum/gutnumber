@@ -95,13 +95,13 @@ export class Daemon {
   async pollOne(g: Gutnumber, ctx: PollContext): Promise<PollResult> {
     let r: PollResult;
     try {
-      r = await pollGutnumber(g, ctx);
+      r = await pollGutnumber(g, ctx, g.fetcher === 'helper' ? { since: this.store.lastSampleTs(g.id) } : {});
     } catch (e) {
       r = { ok: false, fetcher: g.fetcher, error_class: 'network', message: (e as Error).message, duration_ms: 0, proxy_used: false, attempts: [] };
     }
     const t = this.clock();
     let suspect = false;
-    if (r.ok && r.value !== undefined) {
+    if (r.ok && r.value !== undefined && !r.samples) {
       const prev = this.store.previousValue(g.id);
       if (prev && r.value && Math.max(Math.abs(r.value / prev), Math.abs(prev / r.value)) > SUSPECT_RATIO) suspect = true;
     }
@@ -121,6 +121,7 @@ export class Daemon {
         duration_ms: r.duration_ms,
         proxy_used: r.proxy_used,
         suspect,
+        samples: r.samples,
       },
       next,
     );
